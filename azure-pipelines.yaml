@@ -4,12 +4,15 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
+variables:
+- group: MyAzureARMVars   # Contains ARM_CLIENT_ID, ARM_CLIENT_SECRET, ARM_TENANT_ID, ARM_SUBSCRIPTION_ID
+
 steps:
 
-# Checkout
+# 1️⃣ Checkout
 - checkout: self
 
-# Login
+# 2️⃣ Azure Login using Service Connection
 - task: AzureCLI@2
   displayName: 'Azure Login'
   inputs:
@@ -19,7 +22,7 @@ steps:
     inlineScript: |
       Write-Host "✔ Azure login successful"
 
-# Install Terraform
+# 3️⃣ Install Terraform
 - powershell: |
       Invoke-WebRequest https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_windows_amd64.zip -OutFile terraform.zip
       Expand-Archive terraform.zip -DestinationPath "$env:AGENT_TEMPDIRECTORY\terraform"
@@ -27,20 +30,36 @@ steps:
       terraform -version
   displayName: 'Install Terraform'
 
-# Terraform Init
+# 4️⃣ Terraform Init
 - powershell: |
       terraform init -reconfigure
   displayName: 'Terraform Init'
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-# Terraform Plan
+# 5️⃣ Terraform Plan
 - powershell: |
       terraform plan -var="admin_password=$(admin_password)"
   displayName: 'Terraform Plan'
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-# Terraform Apply
+# 6️⃣ Terraform Apply
 - powershell: |
       terraform apply -auto-approve -var="admin_password=$(admin_password)"
   displayName: 'Terraform Apply'
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+
 
 
 
