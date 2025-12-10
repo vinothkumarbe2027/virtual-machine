@@ -3,7 +3,7 @@ variable "location" {
 }
 
 variable "rg_name" {
-  default = "rg-winvm-demo"
+  default = "rg-winvm-demo10"
 }
 
 variable "vnet_name" {
