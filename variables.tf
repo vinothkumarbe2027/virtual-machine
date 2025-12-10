@@ -1,5 +1,5 @@
 variable "location" {
-  default = "East US"
+  default = "East US 2"
 }
 
 variable "rg_name" {
@@ -27,7 +27,7 @@ variable "vm_name" {
 }
 
 variable "vm_size" {
-  default = "Standard_B2ms"
+  default = "Standard_B2s"   # 💥 Capacity guaranteed
 }
 
 variable "admin_username" {
@@ -38,6 +38,7 @@ variable "admin_password" {
   type      = string
   sensitive = true
 }
+
 
 
 
