@@ -1,14 +1,18 @@
+terraform {
+  backend "azurerm" {}
+}
+
 provider "azurerm" {
   features {}
 }
 
-Resource Group
+# Resource Group
 resource "azurerm_resource_group" "rg" {
   name     = "rg-winvm-demo"
   location = "East US"
 }
 
-️Virtual Network
+# Virtual Network
 resource "azurerm_virtual_network" "vnet" {
   name                = "vnet-win-demo"
   address_space       = ["10.0.0.0/16"]
@@ -16,7 +20,7 @@ resource "azurerm_virtual_network" "vnet" {
   resource_group_name = azurerm_resource_group.rg.name
 }
 
-️Subnet
+# Subnet
 resource "azurerm_subnet" "subnet" {
   name                 = "subnet-winvm"
   resource_group_name  = azurerm_resource_group.rg.name
@@ -24,7 +28,7 @@ resource "azurerm_subnet" "subnet" {
   address_prefixes     = ["10.0.1.0/24"]
 }
 
-️Public IP
+# Public IP
 resource "azurerm_public_ip" "pip" {
   name                = "pip-winvm"
   location            = azurerm_resource_group.rg.location
@@ -33,7 +37,7 @@ resource "azurerm_public_ip" "pip" {
   sku                 = "Standard"
 }
 
-Network Interface
+# Network Interface
 resource "azurerm_network_interface" "nic" {
   name                = "nic-winvm"
   location            = azurerm_resource_group.rg.location
@@ -47,7 +51,7 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
-Windows Virtual Machine
+# Windows Virtual Machine
 resource "azurerm_windows_virtual_machine" "vm" {
   name                = "winvm-demo01"
   resource_group_name = azurerm_resource_group.rg.name
@@ -73,3 +77,4 @@ resource "azurerm_windows_virtual_machine" "vm" {
     version   = "latest"
   }
 }
+
