@@ -5,7 +5,7 @@ provider "azurerm" {
 # ----------------------
 # RESOURCE GROUP
 # ----------------------
-data "azurerm_resource_group" "rg" {
+resource "azurerm_resource_group" "rg" {
   name     = var.rg_name
   #location = var.location
 }
@@ -18,7 +18,7 @@ resource "azurerm_virtual_network" "vnet" {
 
   name                = var.vnet_name
   address_space       = var.address_space
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg.name
   location            = var.location
 }
 
@@ -29,7 +29,7 @@ resource "azurerm_subnet" "subnet" {
   depends_on = [azurerm_virtual_network.vnet]
 
   name                 = var.subnet_name
-  resource_group_name  = data.azurerm_resource_group.rg.name
+  resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = var.subnet_prefix
 }
@@ -41,7 +41,7 @@ resource "azurerm_public_ip" "pip" {
   depends_on = [azurerm_resource_group.rg]
 
   name                = "${var.vm_name}-pip"
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg.name
   location            = var.location
   allocation_method   = "Static"
   sku                 = "Standard"
@@ -57,7 +57,7 @@ resource "azurerm_network_interface" "nic" {
   ]
 
   name                = "${var.vm_name}-nic"
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg.name
   location            = var.location
 
   ip_configuration {
@@ -75,7 +75,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
   depends_on = [azurerm_network_interface.nic]
 
   name                = var.vm_name
-  resource_group_name = data.azurerm_resource_group.rg.name
+  resource_group_name = azurerm_resource_group.rg.name
   location            = var.location
   size                = var.vm_size
 
