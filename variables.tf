@@ -27,7 +27,7 @@ variable "vm_name" {
 }
 
 variable "vm_size" {
-  default = "Standard_B2s"   # 💥 Capacity guaranteed
+  default = "Standard_B2s"   # available in East US 2
 }
 
 variable "admin_username" {
@@ -38,6 +38,7 @@ variable "admin_password" {
   type      = string
   sensitive = true
 }
+
 
 
 
