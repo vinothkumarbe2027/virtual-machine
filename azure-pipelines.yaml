@@ -8,7 +8,6 @@ variables:
 - group: MyAzureARMVars
 
 steps:
-
 # 1️⃣ Checkout
 - checkout: self
 
@@ -17,58 +16,73 @@ steps:
   displayName: 'Azure Login'
   inputs:
     azureSubscription: 'testserviceconnection'
-    scriptType: ps
-    scriptLocation: inlineScript
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
     inlineScript: |
       Write-Host "✔ Azure login successful"
 
 # 3️⃣ Export ARM variables
-- powershell: |
+- task: PowerShell@2
+  displayName: "Export ARM Variables"
+  inputs:
+    targetType: inline
+    script: |
       Write-Host "Setting ARM environment variables..."
-
       Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID]$(ARM_CLIENT_ID)"
       Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET]$(ARM_CLIENT_SECRET)"
       Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID]$(ARM_TENANT_ID)"
       Write-Host "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(ARM_SUBSCRIPTION_ID)"
-  displayName: "Export ARM Variables"
 
 # 4️⃣ Install Terraform
-- powershell: |
+- task: PowerShell@2
+  displayName: "Install Terraform"
+  inputs:
+    targetType: inline
+    script: |
       Invoke-WebRequest https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_windows_amd64.zip -OutFile terraform.zip
       Expand-Archive terraform.zip -DestinationPath "$env:AGENT_TEMPDIRECTORY\terraform"
       Move-Item "$env:AGENT_TEMPDIRECTORY\terraform\terraform.exe" "C:\windows\system32\terraform.exe" -Force
       terraform -version
-  displayName: 'Install Terraform'
 
 # 5️⃣ Terraform Init
-- powershell: |
-      terraform init -reconfigure
-  displayName: 'Terraform Init'
+- task: PowerShell@2
+  displayName: "Terraform Init"
   env:
     ARM_CLIENT_ID: $(ARM_CLIENT_ID)
     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+  inputs:
+    targetType: inline
+    script: |
+      terraform init -reconfigure
 
 # 6️⃣ Terraform Plan
-- powershell: |
-      terraform plan -var="admin_password=$(admin_password)"
-  displayName: 'Terraform Plan'
+- task: PowerShell@2
+  displayName: "Terraform Plan"
   env:
     ARM_CLIENT_ID: $(ARM_CLIENT_ID)
     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+  inputs:
+    targetType: inline
+    script: |
+      terraform plan -var="admin_password=$(admin_password)"
 
 # 7️⃣ Terraform Apply
-- powershell: |
-      terraform apply -auto-approve -var="admin_password=$(admin_password)"
-  displayName: 'Terraform Apply'
+- task: PowerShell@2
+  displayName: "Terraform Apply"
   env:
     ARM_CLIENT_ID: $(ARM_CLIENT_ID)
     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+  inputs:
+    targetType: inline
+    script: |
+      terraform apply -auto-approve -var="admin_password=$(admin_password)"
+
 
 
 
