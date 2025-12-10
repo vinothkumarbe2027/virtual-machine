@@ -5,19 +5,14 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-- group: MyAzureARMVars   
+- group: MyAzureARMVars
 
 steps:
 
-# ---------------------------------------------------------
-# 1️⃣ Checkout Code
-# ---------------------------------------------------------
+# 1️⃣ Checkout
 - checkout: self
 
-
-# ---------------------------------------------------------
-# 2️⃣ Azure Login + Export ARM Variables for Terraform
-# ---------------------------------------------------------
+# 2️⃣ Azure Login + Export ARM Vars
 - task: AzureCLI@2
   displayName: 'Azure Login'
   inputs:
@@ -25,20 +20,14 @@ steps:
     scriptType: ps
     scriptLocation: inlineScript
     inlineScript: |
-      Write-Host "✔ Logged in to Azure successfully"
+      Write-Host "✔ Azure login successful"
 
-      # Export ARM environment variables from Variable Group
       Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID]$(ARM_CLIENT_ID)"
       Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET]$(ARM_CLIENT_SECRET)"
       Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID]$(ARM_TENANT_ID)"
       Write-Host "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(ARM_SUBSCRIPTION_ID)"
 
-      Write-Host "✔ ARM variables exported for Terraform"
-
-
-# ---------------------------------------------------------
 # 3️⃣ Install Terraform
-# ---------------------------------------------------------
 - powershell: |
       Invoke-WebRequest https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_windows_amd64.zip -OutFile terraform.zip
       Expand-Archive terraform.zip -DestinationPath "$env:AGENT_TEMPDIRECTORY\terraform"
@@ -46,17 +35,9 @@ steps:
       terraform -version
   displayName: 'Install Terraform'
 
-
-# ---------------------------------------------------------
-# 4️⃣ Terraform Init  (uses ARM_* variables)
-# ---------------------------------------------------------
+# 4️⃣ Terraform Init
 - powershell: |
-      terraform init `
-        -backend-config="resource_group_name=YOUR-BACKEND-RG" `
-        -backend-config="storage_account_name=YOUR-STORAGE-ACCOUNT" `
-        -backend-config="container_name=tfstate" `
-        -backend-config="key=windowsvm.tfstate" `
-        -reconfigure
+      terraform init -reconfigure
   displayName: 'Terraform Init'
   env:
     ARM_CLIENT_ID: $(ARM_CLIENT_ID)
@@ -64,10 +45,7 @@ steps:
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-
-# ---------------------------------------------------------
 # 5️⃣ Terraform Plan
-# ---------------------------------------------------------
 - powershell: |
       terraform plan -var="admin_password=$(admin_password)"
   displayName: 'Terraform Plan'
@@ -77,10 +55,7 @@ steps:
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-
-# ---------------------------------------------------------
-# 6️⃣ Terraform Apply
-# ---------------------------------------------------------
+# 6️⃣ Apply
 - powershell: |
       terraform apply -auto-approve -var="admin_password=$(admin_password)"
   displayName: 'Terraform Apply'
@@ -89,6 +64,7 @@ steps:
     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+
 
 
 
