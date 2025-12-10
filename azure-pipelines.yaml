@@ -12,8 +12,7 @@ steps:
 # 1️⃣ Checkout
 - checkout: self
 
-
-# 2️⃣ Azure Login (NO VARIABLE EXPORT HERE)
+# 2️⃣ Azure Login
 - task: AzureCLI@2
   displayName: 'Azure Login'
   inputs:
@@ -23,8 +22,7 @@ steps:
     inlineScript: |
       Write-Host "✔ Azure login successful"
 
-
-# 3️⃣ Export ARM variables in a separate PowerShell task
+# 3️⃣ Export ARM variables
 - powershell: |
       Write-Host "Setting ARM environment variables..."
 
@@ -32,9 +30,7 @@ steps:
       Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET]$(ARM_CLIENT_SECRET)"
       Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID]$(ARM_TENANT_ID)"
       Write-Host "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(ARM_SUBSCRIPTION_ID)"
-
   displayName: "Export ARM Variables"
-
 
 # 4️⃣ Install Terraform
 - powershell: |
@@ -43,7 +39,6 @@ steps:
       Move-Item "$env:AGENT_TEMPDIRECTORY\terraform\terraform.exe" "C:\windows\system32\terraform.exe" -Force
       terraform -version
   displayName: 'Install Terraform'
-
 
 # 5️⃣ Terraform Init
 - powershell: |
@@ -55,7 +50,6 @@ steps:
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-
 # 6️⃣ Terraform Plan
 - powershell: |
       terraform plan -var="admin_password=$(admin_password)"
@@ -66,7 +60,6 @@ steps:
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-
 # 7️⃣ Terraform Apply
 - powershell: |
       terraform apply -auto-approve -var="admin_password=$(admin_password)"
@@ -76,6 +69,7 @@ steps:
     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+
 
 
 
