@@ -15,7 +15,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Azure Login'
   inputs:
-    azureSubscription: 'testserviceconnection'
+    azureSubscription: 'my-sp-connection'
     scriptType: 'ps'
     scriptLocation: 'inlineScript'
     inlineScript: |
