@@ -22,10 +22,10 @@ steps:
     inlineScript: |
       Write-Host "✔ Azure login successful"
 
-      Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID]$(ARM_CLIENT_ID)"
-      Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET]$(ARM_CLIENT_SECRET)"
-      Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID]$(ARM_TENANT_ID)"
-      Write-Host "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(ARM_SUBSCRIPTION_ID)"
+      Write-Host '##vso[task.setvariable variable=ARM_CLIENT_ID]$(ARM_CLIENT_ID)'
+      Write-Host '##vso[task.setvariable variable=ARM_CLIENT_SECRET]$(ARM_CLIENT_SECRET)'
+      Write-Host '##vso[task.setvariable variable=ARM_TENANT_ID]$(ARM_TENANT_ID)'
+      Write-Host '##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(ARM_SUBSCRIPTION_ID)'
 
 # 3️⃣ Install Terraform
 - powershell: |
@@ -55,7 +55,7 @@ steps:
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-# 6️⃣ Apply
+# 6️⃣ Terraform Apply
 - powershell: |
       terraform apply -auto-approve -var="admin_password=$(admin_password)"
   displayName: 'Terraform Apply'
@@ -64,6 +64,7 @@ steps:
     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+
 
 
 
