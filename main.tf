@@ -27,8 +27,8 @@ resource "azurerm_subnet" "subnet" {
 # Public IP
 resource "azurerm_public_ip" "pip" {
   name                = "${var.vm_name}-pip"
-  location            = var.location
-  resource_group_name = var.rg_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
 }
@@ -36,8 +36,8 @@ resource "azurerm_public_ip" "pip" {
 # Network Interface
 resource "azurerm_network_interface" "nic" {
   name                = "${var.vm_name}-nic"
-  location            = var.location
-  resource_group_name = var.rg_name
+  location            = azurerm_resource_group.rg.location
+  resource_group_name = azurerm_resource_group.rg.name
 
   ip_configuration {
     name                          = "ipconfig1"
@@ -50,8 +50,8 @@ resource "azurerm_network_interface" "nic" {
 # Windows VM
 resource "azurerm_windows_virtual_machine" "vm" {
   name                = var.vm_name
-  resource_group_name = var.rg_name
-  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
   size                = var.vm_size
 
   admin_username = var.admin_username
@@ -73,5 +73,6 @@ resource "azurerm_windows_virtual_machine" "vm" {
     version   = "latest"
   }
 }
+
 
 
