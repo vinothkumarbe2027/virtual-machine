@@ -4,11 +4,18 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 
+variables:
+- group: MyAzureARMVars   
+
 steps:
-#  Checkout Code
+# ---------------------------------------------------------
+# 1️⃣ Checkout Code
+# ---------------------------------------------------------
 - checkout: self
 
-#  Azure Login
+# ---------------------------------------------------------
+# 2️⃣ Azure Login using Service Connection
+# ---------------------------------------------------------
 - task: AzureCLI@2
   displayName: 'Azure Login'
   inputs:
@@ -16,9 +23,11 @@ steps:
     scriptType: ps
     scriptLocation: inlineScript
     inlineScript: |
-      az account show
+      Write-Host "✔ Logged in to Azure successfully"
 
-#  Install Terraform (Windows)
+# ---------------------------------------------------------
+# 3️⃣ Install Terraform
+# ---------------------------------------------------------
 - powershell: |
       Invoke-WebRequest https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_windows_amd64.zip -OutFile terraform.zip
       Expand-Archive terraform.zip -DestinationPath "$env:AGENT_TEMPDIRECTORY\terraform"
@@ -26,23 +35,45 @@ steps:
       terraform -version
   displayName: 'Install Terraform'
 
-#  Terraform Init
+# ---------------------------------------------------------
+# 4️⃣ Terraform Init  (Uses variable group ARM values)
+# ---------------------------------------------------------
 - powershell: |
       terraform init `
         -backend-config="resource_group_name=YOUR-BACKEND-RG" `
-        -backend-config="storage_account_name=YOUR-STORAGE" `
+        -backend-config="storage_account_name=YOUR-STORAGE-ACCOUNT" `
         -backend-config="container_name=tfstate" `
         -backend-config="key=windowsvm.tfstate" `
         -reconfigure
   displayName: 'Terraform Init'
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-#  Terraform Plan
+# ---------------------------------------------------------
+# 5️⃣ Terraform Plan
+# ---------------------------------------------------------
 - powershell: |
       terraform plan -var="admin_password=$(admin_password)"
   displayName: 'Terraform Plan'
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
-#  Terraform Apply (Auto Approve)
+# ---------------------------------------------------------
+# 6️⃣ Terraform Apply
+# ---------------------------------------------------------
 - powershell: |
       terraform apply -auto-approve -var="admin_password=$(admin_password)"
   displayName: 'Terraform Apply'
+  env:
+    ARM_CLIENT_ID: $(ARM_CLIENT_ID)
+    ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
+    ARM_TENANT_ID: $(ARM_TENANT_ID)
+    ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+
 
