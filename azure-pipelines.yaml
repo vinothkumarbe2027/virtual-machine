@@ -20,7 +20,7 @@ steps:
     scriptType: ps
     scriptLocation: inlineScript
     inlineScript: |
-      Write-Host "✔ Azure login successful"
+      Write-Host "Azure login successful"
 
 # 3️⃣ Install Terraform
 - powershell: |
