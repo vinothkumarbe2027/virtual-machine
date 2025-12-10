@@ -15,7 +15,7 @@ steps:
 - task: AzureCLI@2
   displayName: 'Azure Login'
   inputs:
-    azureSubscription: 'my-sp-connection'
+    azureSubscription: 'azure-spn-secret'
     scriptType: 'ps'
     scriptLocation: 'inlineScript'
     inlineScript: |
