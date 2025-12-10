@@ -7,7 +7,7 @@ variable "rg_name" {
 }
 
 variable "vnet_name" {
-  default = "vnet-win-demo"
+  default = "vnet-win-demo20"
 }
 
 variable "subnet_name" {
