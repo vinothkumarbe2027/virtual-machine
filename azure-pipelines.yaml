@@ -8,13 +8,15 @@ variables:
 - group: MyAzureARMVars   
 
 steps:
+
 # ---------------------------------------------------------
 # 1️⃣ Checkout Code
 # ---------------------------------------------------------
 - checkout: self
 
+
 # ---------------------------------------------------------
-# 2️⃣ Azure Login using Service Connection
+# 2️⃣ Azure Login + Export ARM Variables for Terraform
 # ---------------------------------------------------------
 - task: AzureCLI@2
   displayName: 'Azure Login'
@@ -24,6 +26,15 @@ steps:
     scriptLocation: inlineScript
     inlineScript: |
       Write-Host "✔ Logged in to Azure successfully"
+
+      # Export ARM environment variables from Variable Group
+      Write-Host "##vso[task.setvariable variable=ARM_CLIENT_ID]$(ARM_CLIENT_ID)"
+      Write-Host "##vso[task.setvariable variable=ARM_CLIENT_SECRET]$(ARM_CLIENT_SECRET)"
+      Write-Host "##vso[task.setvariable variable=ARM_TENANT_ID]$(ARM_TENANT_ID)"
+      Write-Host "##vso[task.setvariable variable=ARM_SUBSCRIPTION_ID]$(ARM_SUBSCRIPTION_ID)"
+
+      Write-Host "✔ ARM variables exported for Terraform"
+
 
 # ---------------------------------------------------------
 # 3️⃣ Install Terraform
@@ -35,8 +46,9 @@ steps:
       terraform -version
   displayName: 'Install Terraform'
 
+
 # ---------------------------------------------------------
-# 4️⃣ Terraform Init  (Uses variable group ARM values)
+# 4️⃣ Terraform Init  (uses ARM_* variables)
 # ---------------------------------------------------------
 - powershell: |
       terraform init `
@@ -52,6 +64,7 @@ steps:
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
+
 # ---------------------------------------------------------
 # 5️⃣ Terraform Plan
 # ---------------------------------------------------------
@@ -64,6 +77,7 @@ steps:
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
 
+
 # ---------------------------------------------------------
 # 6️⃣ Terraform Apply
 # ---------------------------------------------------------
@@ -75,5 +89,6 @@ steps:
     ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
     ARM_TENANT_ID: $(ARM_TENANT_ID)
     ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID)
+
 
 
