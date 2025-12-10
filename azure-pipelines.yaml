@@ -1,1 +1,48 @@
+trigger:
+- main
+
+pool:
+  vmImage: 'windows-latest'
+
+steps:
+#  Checkout Code
+- checkout: self
+
+#  Azure Login
+- task: AzureCLI@2
+  displayName: 'Azure Login'
+  inputs:
+    azureSubscription: 'testserviceconnection'
+    scriptType: ps
+    scriptLocation: inlineScript
+    inlineScript: |
+      az account show
+
+#  Install Terraform (Windows)
+- powershell: |
+      Invoke-WebRequest https://releases.hashicorp.com/terraform/1.7.5/terraform_1.7.5_windows_amd64.zip -OutFile terraform.zip
+      Expand-Archive terraform.zip -DestinationPath "$env:AGENT_TEMPDIRECTORY\terraform"
+      Move-Item "$env:AGENT_TEMPDIRECTORY\terraform\terraform.exe" "C:\windows\system32\terraform.exe" -Force
+      terraform -version
+  displayName: 'Install Terraform'
+
+#  Terraform Init
+- powershell: |
+      terraform init `
+        -backend-config="resource_group_name=YOUR-BACKEND-RG" `
+        -backend-config="storage_account_name=YOUR-STORAGE" `
+        -backend-config="container_name=tfstate" `
+        -backend-config="key=windowsvm.tfstate" `
+        -reconfigure
+  displayName: 'Terraform Init'
+
+#  Terraform Plan
+- powershell: |
+      terraform plan -var="admin_password=$(admin_password)"
+  displayName: 'Terraform Plan'
+
+#  Terraform Apply (Auto Approve)
+- powershell: |
+      terraform apply -auto-approve -var="admin_password=$(admin_password)"
+  displayName: 'Terraform Apply'
 
